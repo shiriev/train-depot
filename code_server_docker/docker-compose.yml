@@ -1,0 +1,18 @@
+version: "3"
+services:
+  train-depot-code-server:
+#    image: "codercom/code-server:latest"
+    build:
+      context: ..
+      dockerfile: code_server_docker/Dockerfile
+    volumes:
+      - $PWD/.config:/home/coder/.config
+      - $PWD/..:/home/coder/project
+#    environment:
+#      DOCKER_USER: $USER
+#    user:
+#      - "$(id -u):$(id -g)"
+    ports:
+      - "4000:8080"
+
+# https://stackoverflow.com/questions/61002681/connecting-to-wsl2-server-via-local-network
