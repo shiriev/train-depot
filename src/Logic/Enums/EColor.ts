@@ -1,5 +1,7 @@
 
 export enum EColor {
     Red,
-    Blue
+    Blue,
+    Green,
+    __LENGTH,
 }

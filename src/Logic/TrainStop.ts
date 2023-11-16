@@ -7,16 +7,16 @@ import { Point } from './Point';
 
 export class TrainStop implements IPath, IStop {
     private readonly point: Point;
-    private readonly color: EColor;
     private readonly direction: EDirection;
+    private readonly color: EColor;
 
     constructor(
         point: Point,
-        color: EColor,
-        direction: EDirection) {
+        direction: EDirection,
+        color: EColor) {
         this.point = point;
-        this.color = color;
         this.direction = direction;
+        this.color = color;
     }
 
     GetNextPath(): [IPath, ETurnAngle] | null {

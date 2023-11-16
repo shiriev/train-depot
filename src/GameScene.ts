@@ -4,6 +4,8 @@ import { EDirection, ETurnAngle } from './Logic/Enums';
 import { Train } from './Logic/Train';
 import { Grid } from './Logic/Grid';
 import { PathVisitor } from './Logic/PathVisitor';
+import { parseLevel } from './Logic/LevelParser';
+import { Levels } from './Logic/Levels';
 
 export class GameScene extends Phaser.Scene {
     grid: Grid;
@@ -12,7 +14,13 @@ export class GameScene extends Phaser.Scene {
     }
 
     create(): void {
-        this.grid = new Grid();
+        const parsingLevelResult = parseLevel(Levels[0]);
+
+        if (parsingLevelResult.success === false) {
+            throw new Error(parsingLevelResult.error);
+        }
+
+        this.grid = parsingLevelResult.grid;
 
         for (const path of this.grid.paths) {
             path.AcceptVisitor(new PathVisitor(

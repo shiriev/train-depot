@@ -5,8 +5,7 @@ import { EDirection, ETurnAngle, ELeverType, ELeverTurn } from './Enums';
 import { Point } from './Point';
 import { MakeTurn } from './PathUtils';
 
-export class Lever implements IPath
-{
+export class Lever implements IPath {
     private readonly point: Point;
     private readonly direction: EDirection;
     private readonly type: ELeverType;
