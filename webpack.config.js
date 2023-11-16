@@ -28,10 +28,11 @@ module.exports = {
         },
         compress: true,
         port: 3000,
-        hot: true,
+        liveReload: true,
         client: {
             webSocketURL: 'auto://0.0.0.0:0/proxy/3000/ws', // note the `:0` after `0.0.0.0`
         },
+        allowedHosts: 'all',
     },
     plugins: [
         new CleanWebpackPlugin(),

@@ -1,11 +1,14 @@
 import Phaser from 'phaser';
 import { IPath } from './Logic/IPath';
-import { EDirection, ETurnAngle } from './Logic/Enums';
+import { EDirection, ELeverTurn, ETurnAngle } from './Logic/Enums';
 import { Train } from './Logic/Train';
 import { Grid } from './Logic/Grid';
 import { PathVisitor } from './Logic/PathVisitor';
 import { parseLevel } from './Logic/LevelParser';
 import { Levels } from './Logic/Levels';
+
+const speed = 0.05;
+const line = 100;
 
 export class GameScene extends Phaser.Scene {
     grid: Grid;
@@ -24,40 +27,69 @@ export class GameScene extends Phaser.Scene {
 
         for (const path of this.grid.paths) {
             path.AcceptVisitor(new PathVisitor(
-                r => {
-                    const point = r.GetPosition();
-                    this.add.rectangle(point.x * 100 + 50, point.y * 100 + 50, 100, 100, 16711680);
+                rail => {
+                    const point = rail.GetPosition();
+                    this.add.rectangle(point.x * line + line / 2, point.y * line + line / 2, line, line, 16711680);
                 },
-                s => {
-                    const point = s.GetPosition();
-                    this.add.rectangle(point.x * 100 + 50, point.y * 100 + 50, 100, 100, 16776960);
+                start => {
+                    const point = start.GetPosition();
+                    this.add.rectangle(point.x * line + line / 2, point.y * line + line / 2, line, line, 16776960);
                 },
-                ts => {
-                    const point = ts.GetPosition();
-                    this.add.rectangle(point.x * 100 + 50, point.y * 100 + 50, 100, 100, 16711935);
+                trainStop => {
+                    const point = trainStop.GetPosition();
+                    this.add.rectangle(point.x * line + line / 2, point.y * line + line / 2, line, line, 16711935);
                 },
-                l => {
-                    const point = l.GetPosition();
-                    this.add.rectangle(point.x * 100 + 50, point.y * 100 + 50, 100, 100, 65280);
+                lever => {
+                    const point = lever.GetPosition();
+                    const leverObject = this.add.rectangle(point.x * line + line / 2, point.y * line + line / 2, line, line, 65280);
+                    leverObject.setInteractive();
+                    leverObject.on('pointerdown', () => {
+                        const turn = lever.TurnLever();
+                        leverObject.fillColor = turn === ELeverTurn.First ? 0xFFFF00 : 0xFFAAAA;
+                        console.log('turn', turn);
+                    });
                 }
             ));
-
-            // this.add.rectangle(point.x * 100, point.y * 100, 100, 100, 0xff0000);
         }
 
         for (const train of this.grid.trains) {
-            const point = train.GetPosition();
-            const rectangle = this.add.rectangle(point.x * 100, point.y * 100 + 50, 30, 70, 16777215);
-            rectangle.setAngle(90);
-            train.subscribeOnStep((tr, oldPath, newPath, angle) => this.actTrain(rectangle, tr, oldPath, newPath, angle));
+            const trainObject = this.createTrainObject(train);
+            train.subscribeOnStep((tr, oldPath, newPath, angle) => this.actTrain(trainObject, tr, oldPath, newPath, angle));
             train.subscribeOnFinish((tr, success) => console.log(success));
             train.goNext();
         }
     }
 
+    private createTrainObject(train: Train): Phaser.GameObjects.GameObject {
+        const point = train.GetPosition();
+        let angle = 0;
+        let xAdd = 0;
+        let yAdd = 0;
+        switch (train.GetDirection()) {
+            case EDirection.Up:
+                yAdd = line / 2;
+                angle = 0;
+                break;
+            case EDirection.Down:
+                yAdd = -line / 2;
+                angle = 180;
+                break;
+            case EDirection.Left:
+                xAdd = line / 2;
+                angle = 270;
+                break;
+            case EDirection.Right:
+                xAdd = -line / 2;
+                angle = 90;
+                break;
+        }
+        console.log('train', train, train.GetPosition(), train.GetDirection(), angle, xAdd, yAdd);
+        const rectangle = this.add.rectangle(point.x * line + line / 2 + xAdd, point.y * line + line / 2 + yAdd, 30, 70, 0xFFFFFF);
+        rectangle.setAngle(angle);
+        return rectangle;
+    }
+
     private actTrain(gameObject: Phaser.GameObjects.GameObject, train: Train, oldPath: IPath, newPath: IPath, angleType: ETurnAngle): void {
-        const speed = 0.05;
-        const line = 100;
         const newPoint = newPath.GetPosition();
 
         if (angleType === ETurnAngle.Forward) {
@@ -88,7 +120,6 @@ export class GameScene extends Phaser.Scene {
                 onComplete: () => train.goNext(),
             });
         }
-
         else {
             const duration = (Math.PI * (line / 2) / 2) / speed;
             let angle = '';
@@ -99,7 +130,6 @@ export class GameScene extends Phaser.Scene {
             if (angleType === ETurnAngle.Left) {
                 angle = '-=90';
             }
-
             else {
                 angle = '+=90';
             }

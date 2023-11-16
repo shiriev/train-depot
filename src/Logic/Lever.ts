@@ -41,8 +41,9 @@ export class Lever implements IPath {
         return MakeTurn(this.direction, this.GetTurn());
     }
 
-    TurnLever(): void {
+    TurnLever(): ELeverTurn {
         this.currentTurn = this.currentTurn === ELeverTurn.Second ? ELeverTurn.First : ELeverTurn.Second;
+        return this.currentTurn;
     }
 
     GetPosition(): Point {
