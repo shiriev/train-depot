@@ -7,6 +7,7 @@ import { MakeTurn } from "./PathUtils";
 import { Point } from "./Point";
 import { Rail } from "./Rail";
 import { Start } from "./Start";
+import { Train } from "./Train";
 import { TrainStop } from "./TrainStop";
 
 export function parseLevel(level: Level): LevelParsingResult {
@@ -16,8 +17,10 @@ export function parseLevel(level: Level): LevelParsingResult {
         const paths: IPath[] = [];
         const colors: EColor[] = [];
         const startPath = fillPaths(startPoint, level, paths, colors);
+        const trainColors = generateTrainColors(level.trainCount, colors);
+        const trains = trainColors.map(c => new Train(c, startPath));
 
-        return { success: true, grid: new Grid(paths, startPath, level.trainCount) };
+        return { success: true, grid: new Grid(paths, startPath, trains) };
     }
     catch (errorAny) {
         const error: Error = errorAny;
@@ -131,4 +134,25 @@ function getNewPathPoint(point: Point, direction: EDirection): Point {
         default:
             throw new Error(`Unknown direction type (${direction})`);
     }
+}
+
+function generateTrainColors(trainCount: number, colors: EColor[]): EColor[] {
+    const trainColors: EColor[] = [];
+    let tempColors: EColor[] = [];
+    for (let i = 0; i < trainCount; i++) {
+        if (tempColors.length == 0) {
+            tempColors = [...colors];
+        }
+        const randomIndex = getRandomIntInclusive(0, tempColors.length);
+        trainColors[i] = tempColors[randomIndex];
+        tempColors[randomIndex] = tempColors[tempColors.length - 1];
+        tempColors.pop();
+    }
+    return trainColors;
+}
+
+function getRandomIntInclusive(min: number, max: number): number {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }

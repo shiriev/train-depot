@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { IPath } from './Logic/IPath';
-import { EDirection, ELeverTurn, ETurnAngle } from './Logic/Enums';
+import { EColor, EDirection, ELeverTurn, ETurnAngle } from './Logic/Enums';
 import { Train } from './Logic/Train';
 import { Grid } from './Logic/Grid';
 import { PathVisitor } from './Logic/PathVisitor';
@@ -37,7 +37,7 @@ export class GameScene extends Phaser.Scene {
                 },
                 trainStop => {
                     const point = trainStop.GetPosition();
-                    this.add.rectangle(point.x * line + line / 2, point.y * line + line / 2, line, line, 16711935);
+                    this.add.rectangle(point.x * line + line / 2, point.y * line + line / 2, line, line, parseColor(trainStop.GetColor()));
                 },
                 lever => {
                     const point = lever.GetPosition();
@@ -52,12 +52,17 @@ export class GameScene extends Phaser.Scene {
             ));
         }
 
-        for (const train of this.grid.trains) {
+        const timerId = setInterval(() => {
+            const train = this.grid.trains.pop();
+            if (train === undefined) {
+                clearInterval(timerId);
+                return;
+            }
             const trainObject = this.createTrainObject(train);
             train.subscribeOnStep((tr, oldPath, newPath, angle) => this.actTrain(trainObject, tr, oldPath, newPath, angle));
             train.subscribeOnFinish((tr, success) => console.log(success));
             train.goNext();
-        }
+        }, 2000);
     }
 
     private createTrainObject(train: Train): Phaser.GameObjects.GameObject {
@@ -84,7 +89,7 @@ export class GameScene extends Phaser.Scene {
                 break;
         }
         console.log('train', train, train.GetPosition(), train.GetDirection(), angle, xAdd, yAdd);
-        const rectangle = this.add.rectangle(point.x * line + line / 2 + xAdd, point.y * line + line / 2 + yAdd, 30, 70, 0xFFFFFF);
+        const rectangle = this.add.rectangle(point.x * line + line / 2 + xAdd, point.y * line + line / 2 + yAdd, 30, 70, parseColor(train.color));
         rectangle.setAngle(angle);
         return rectangle;
     }
@@ -178,5 +183,18 @@ export class GameScene extends Phaser.Scene {
                 onComplete: () => train.goNext(),
             });
         }
+    }
+}
+
+function parseColor(color: EColor): number {
+    switch (color) {
+        case EColor.Blue:
+            return 0x0000FF;
+        case EColor.Red:
+            return 0xFF0000;
+        case EColor.Green:
+            return 0x00FF00;
+        default:
+            return 0;
     }
 }

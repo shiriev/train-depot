@@ -12,10 +12,11 @@ export class Grid
     public paths: IPath[];
     public trains: Train[];
 
-    constructor(paths: IPath[], startPath: IPath, trainCount: number) {
+    constructor(paths: IPath[], startPath: IPath, trains: Train[]) {
         this.paths = paths;
-        const train = new Train(EColor.Blue, startPath);
-        this.trains = [train];
+        this.trains = trains;
+        // const train = new Train(EColor.Blue, startPath);
+        // this.trains = [train];
         // const stop1 = new TrainStop(new Point(1, 2), EColor.Blue, EDirection.Down);
         // const rail1Stop1 = new Rail(new Point(1, 1), EDirection.Left, ERailType.Left, stop1);
         // const rail2Stop1 = new Rail(new Point(2, 1), EDirection.Down, ERailType.Right, rail1Stop1);
