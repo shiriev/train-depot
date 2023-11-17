@@ -1,33 +1,70 @@
 import { IPath } from './IPath';
-import { EDirection, EColor, ERailType, ELeverType, ELeverTurn } from './Enums';
-import { Point } from './Point';
 import { Train } from './Train';
-import { Rail } from './Rail';
-import { Start } from './Start';
-import { TrainStop } from './TrainStop';
-import { Lever } from './Lever';
+import { IPathVisitor } from './IPathVisitor';
 
 export class Grid
 {
-    public paths: IPath[];
-    public trains: Train[];
+    private readonly paths: IPath[];
+    private readonly trains: Train[];
+    private readonly totalTrainCount: number;
+    private finishedTrainCount: number;
+    private succesfullFinishedTrainCount: number;
+    private onStatChangedCallbacks: ((stat: GameStat) => void)[];
+    private onGameFinishedCallbacks: ((stat: GameStat) => void)[];
 
-    constructor(paths: IPath[], startPath: IPath, trains: Train[]) {
+    constructor(paths: IPath[], trains: Train[]) {
         this.paths = paths;
-        this.trains = trains;
-        // const train = new Train(EColor.Blue, startPath);
-        // this.trains = [train];
-        // const stop1 = new TrainStop(new Point(1, 2), EColor.Blue, EDirection.Down);
-        // const rail1Stop1 = new Rail(new Point(1, 1), EDirection.Left, ERailType.Left, stop1);
-        // const rail2Stop1 = new Rail(new Point(2, 1), EDirection.Down, ERailType.Right, rail1Stop1);
-        // const stop2 = new TrainStop(new Point(3, 0), EColor.Red, EDirection.Right);
-        // const lever = new Lever(new Point(2, 0), EDirection.Right, ELeverType.ForwardAndRight, stop2, rail2Stop1, ELeverTurn.First);
-        // lever.TurnLever();
-        // const rail = new Rail(new Point(1, 0), EDirection.Right, ERailType.Forward, lever);
-        // const start = new Start(new Point(0, 0), EDirection.Right, rail);
-        // this.paths = [start, rail, lever, stop1, stop2, rail1Stop1, rail2Stop1];
-// 
-        // const train = new Train(EColor.Blue, start);
-        // this.trains = [train];
+        this.trains = trains.reverse();
+        this.totalTrainCount = trains.length;
+        this.finishedTrainCount = 0;
+        this.succesfullFinishedTrainCount = 0;
+        for (const train of trains) {
+            train.subscribeOnFinish((train: Train, success: boolean) => this.onTrainFinished(train, success));
+        }
+        this.onStatChangedCallbacks = [];
+        this.onGameFinishedCallbacks = [];
     }
+
+    visitPaths(visitor: IPathVisitor): void {
+        for (const path of this.paths) {
+            path.AcceptVisitor(visitor);
+        }
+    }
+
+    subscribeOnStatChanged(onStatChanged: (stat: GameStat) => void): void {
+        this.onStatChangedCallbacks.push(onStatChanged);
+    }
+
+    subscribeOnGameFinished(onGameFinished: (stat: GameStat) => void): void {
+        this.onGameFinishedCallbacks.push(onGameFinished);
+    }
+
+    runNewTrain(): Train {
+        return this.trains.pop();
+    }
+
+    private onTrainFinished(train: Train, success: boolean): void {
+        this.finishedTrainCount++;
+        if (success) {
+            this.succesfullFinishedTrainCount++;
+        }
+
+        const stat: GameStat = {         
+            totalTrainCount: this.totalTrainCount,
+            finishedTrainCount: this.finishedTrainCount,
+            succesfullFinishedTrainCount: this.succesfullFinishedTrainCount
+        };
+
+        this.onStatChangedCallbacks.forEach(callback => callback(stat));
+
+        if (this.finishedTrainCount === this.totalTrainCount) {
+            this.onGameFinishedCallbacks.forEach(callback => callback(stat));
+        }
+    }
+}
+
+type GameStat = {
+    totalTrainCount: number,
+    finishedTrainCount: number,
+    succesfullFinishedTrainCount: number
 }

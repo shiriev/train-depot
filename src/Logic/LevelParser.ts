@@ -20,7 +20,7 @@ export function parseLevel(level: Level): LevelParsingResult {
         const trainColors = generateTrainColors(level.trainCount, colors);
         const trains = trainColors.map(c => new Train(c, startPath));
 
-        return { success: true, grid: new Grid(paths, startPath, trains) };
+        return { success: true, grid: new Grid(paths, trains) };
     }
     catch (errorAny) {
         const error: Error = errorAny;
@@ -143,7 +143,7 @@ function generateTrainColors(trainCount: number, colors: EColor[]): EColor[] {
         if (tempColors.length == 0) {
             tempColors = [...colors];
         }
-        const randomIndex = getRandomIntInclusive(0, tempColors.length);
+        const randomIndex = getRandomIntInclusive(0, tempColors.length - 1);
         trainColors[i] = tempColors[randomIndex];
         tempColors[randomIndex] = tempColors[tempColors.length - 1];
         tempColors.pop();

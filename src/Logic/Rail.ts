@@ -38,8 +38,16 @@ export class Rail implements IPath {
         return MakeTurn(this.direction, this.GetTurn());
     }
 
+    GetStartDirection(): EDirection {
+        return this.direction;
+    }
+
     GetPosition(): Point {
         return this.point;
+    }
+
+    GetRailType(): ERailType {
+        return this.type;
     }
 
     AcceptVisitor(visitor: IPathVisitor): void {

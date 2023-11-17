@@ -8,7 +8,8 @@ export const Levels: Level[] = [
         trainCount: 3,
         map: [
             "+>|>}>}>#>",
-            "    #v#v  ",
+            "  #<]v|v  ",
+            "      #v  ",
         ],
     },
 ];

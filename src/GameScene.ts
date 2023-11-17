@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { IPath } from './Logic/IPath';
-import { EColor, EDirection, ELeverTurn, ETurnAngle } from './Logic/Enums';
+import { EColor, EDirection, ELeverTurn, ERailType, ETurnAngle } from './Logic/Enums';
 import { Train } from './Logic/Train';
 import { Grid } from './Logic/Grid';
 import { PathVisitor } from './Logic/PathVisitor';
@@ -25,35 +25,46 @@ export class GameScene extends Phaser.Scene {
 
         this.grid = parsingLevelResult.grid;
 
-        for (const path of this.grid.paths) {
-            path.AcceptVisitor(new PathVisitor(
-                rail => {
-                    const point = rail.GetPosition();
-                    this.add.rectangle(point.x * line + line / 2, point.y * line + line / 2, line, line, 16711680);
-                },
-                start => {
-                    const point = start.GetPosition();
-                    this.add.rectangle(point.x * line + line / 2, point.y * line + line / 2, line, line, 16776960);
-                },
-                trainStop => {
-                    const point = trainStop.GetPosition();
-                    this.add.rectangle(point.x * line + line / 2, point.y * line + line / 2, line, line, parseColor(trainStop.GetColor()));
-                },
-                lever => {
-                    const point = lever.GetPosition();
-                    const leverObject = this.add.rectangle(point.x * line + line / 2, point.y * line + line / 2, line, line, 65280);
-                    leverObject.setInteractive();
-                    leverObject.on('pointerdown', () => {
-                        const turn = lever.TurnLever();
-                        leverObject.fillColor = turn === ELeverTurn.First ? 0xFFFF00 : 0xFFAAAA;
-                        console.log('turn', turn);
-                    });
+        this.grid.visitPaths(new PathVisitor(
+            rail => {
+                const point = rail.GetPosition();
+                let gameObject: Phaser.GameObjects.Shape;
+                switch (rail.GetRailType())
+                {
+                    case ERailType.Forward:
+                        gameObject = this.add.rectangle(point.x * line + line / 2, point.y * line + line / 2, 5, line, 16711680);
+                        break;
+                    case ERailType.Left:
+                        gameObject = this.add.rectangle(point.x * line + line / 2, point.y * line + line / 2, 5, line, 16711680);
+                        break;
+                    case ERailType.Right:
+                        gameObject = this.add.rectangle(point.x * line + line / 2, point.y * line + line / 2, 5, line, 16711680);
+                        break;
                 }
-            ));
-        }
+                gameObject.setAngle(getAngle(rail.GetStartDirection()));
+            },
+            start => {
+                const point = start.GetPosition();
+                this.add.circle(point.x * line + line / 2, point.y * line + line / 2, line / 2, 0xAAAAAA);
+            },
+            trainStop => {
+                const point = trainStop.GetPosition();
+                this.add.circle(point.x * line + line / 2, point.y * line + line / 2, line / 2, parseColor(trainStop.GetColor()));
+            },
+            lever => {
+                const point = lever.GetPosition();
+                const leverObject = this.add.rectangle(point.x * line + line / 2, point.y * line + line / 2, line, line, 65280);
+                leverObject.setInteractive();
+                leverObject.on('pointerdown', () => {
+                    const turn = lever.TurnLever();
+                    leverObject.fillColor = turn === ELeverTurn.First ? 0xFFFF00 : 0xFFAAAA;
+                    console.log('turn', turn);
+                });
+            }
+        ));
 
         const timerId = setInterval(() => {
-            const train = this.grid.trains.pop();
+            const train = this.grid.runNewTrain();
             if (train === undefined) {
                 clearInterval(timerId);
                 return;
@@ -63,34 +74,33 @@ export class GameScene extends Phaser.Scene {
             train.subscribeOnFinish((tr, success) => console.log(success));
             train.goNext();
         }, 2000);
+
+        this.grid.subscribeOnGameFinished(gameStat => {
+            console.log('FINISH', gameStat);
+        });
     }
 
     private createTrainObject(train: Train): Phaser.GameObjects.GameObject {
         const point = train.GetPosition();
-        let angle = 0;
         let xAdd = 0;
         let yAdd = 0;
         switch (train.GetDirection()) {
             case EDirection.Up:
                 yAdd = line / 2;
-                angle = 0;
                 break;
             case EDirection.Down:
                 yAdd = -line / 2;
-                angle = 180;
                 break;
             case EDirection.Left:
                 xAdd = line / 2;
-                angle = 270;
                 break;
             case EDirection.Right:
                 xAdd = -line / 2;
-                angle = 90;
                 break;
         }
-        console.log('train', train, train.GetPosition(), train.GetDirection(), angle, xAdd, yAdd);
+        console.log('train', train, train.GetPosition(), train.GetDirection(), getAngle(train.GetDirection()), xAdd, yAdd);
         const rectangle = this.add.rectangle(point.x * line + line / 2 + xAdd, point.y * line + line / 2 + yAdd, 30, 70, parseColor(train.color));
-        rectangle.setAngle(angle);
+        rectangle.setAngle(getAngle(train.GetDirection()));
         return rectangle;
     }
 
@@ -196,5 +206,18 @@ function parseColor(color: EColor): number {
             return 0x00FF00;
         default:
             return 0;
+    }
+}
+
+function getAngle(direction: EDirection): number {
+    switch (direction) {
+        case EDirection.Up:
+            return 0;
+        case EDirection.Down:
+            return 180;
+        case EDirection.Left:
+            return 270;
+        case EDirection.Right:
+            return 90;
     }
 }
