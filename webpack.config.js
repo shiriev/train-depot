@@ -9,12 +9,21 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, './dist'),
         filename: 'index.bundle.js',
+        // assetModuleFilename: 'dist/images/[hash][ext][query]'
+        assetModuleFilename: '[name][ext]'
     },
     module: {
         rules: [
             {
                 test: /\.ts?$/,
                 use: 'ts-loader',
+                exclude: /node_modules/,
+
+            },
+            {
+                // test: /\.(png|svg|jpg|jpeg|gif)$/,
+                test: /\.png/,
+                type: 'asset/resource',
                 exclude: /node_modules/,
             },
         ],
@@ -24,7 +33,7 @@ module.exports = {
     },
     devServer: {
         static: {
-          directory: path.join(__dirname, 'dist'),
+            directory: path.join(__dirname, 'dist'),
         },
         compress: true,
         port: 3000,

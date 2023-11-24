@@ -50,6 +50,18 @@ export class Lever implements IPath {
         return this.point;
     }
 
+    GetType(): ELeverType {
+        return this.type;
+    }
+
+    GetCurrentTurn(): ELeverTurn {
+        return this.currentTurn;
+    }
+
+    GetStartDirection(): EDirection {
+        return this.direction;
+    }
+
     AcceptVisitor(visitor: IPathVisitor): void {
         visitor.VisitLever(this);
     }

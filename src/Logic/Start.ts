@@ -34,6 +34,10 @@ export class Start implements IPath {
         return this.direction;
     }
 
+    GetStartDirection(): EDirection {
+        return this.direction;
+    }
+
     GetPosition(): Point {
         return this.point;
     }
