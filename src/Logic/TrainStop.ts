@@ -31,6 +31,10 @@ export class TrainStop implements IPath, IStop {
         return this.direction;
     }
 
+    GetStartDirection(): EDirection {
+        return this.direction;
+    }
+
     IsStop(): boolean {
         return true;
     }

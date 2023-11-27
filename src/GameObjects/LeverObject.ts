@@ -5,7 +5,6 @@ import * as Helper from './Helper';
 
 
 export class LeverObject {
-
     constructor(gameScene: Phaser.Scene, lever: Lever) {
         const point = lever.GetPosition();
         const leverObject = gameScene.make.image({
@@ -23,7 +22,6 @@ export class LeverObject {
             leverObject.setFrame(this.getFrame(lever));
             console.log('turn', turn);
         });
-        
     }
 
     private getFrame(lever: Lever): number {

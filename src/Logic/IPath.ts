@@ -6,6 +6,7 @@ import { IPathVisitor } from './IPathVisitor';
 export interface IPath
 {
     GetDirection(): EDirection | null;
+    GetStartDirection(): EDirection;
     IsStop(): boolean;
     GetStop(): IStop | null;
     GetNextPath(): [IPath, ETurnAngle] | null;

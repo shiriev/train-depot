@@ -11,6 +11,7 @@ import { TrainStopObject } from './GameObjects/TrainStopObject';
 import { TrainObject } from './GameObjects/TrainObject';
 import * as Constants from './GameObjects/Constants';
 import { Scoreboard } from './GameObjects/Scoreboard';
+import { PauseButton } from './GameObjects/PauseButton';
 
 export class GameScene extends Phaser.Scene {
     grid: Grid;
@@ -64,6 +65,7 @@ export class GameScene extends Phaser.Scene {
         // }, 2000);
 
         new Scoreboard(this, this.grid, 500, 500);
+        new PauseButton(this, 400, 500);
 
         this.grid.subscribeOnGameFinished(gameStat => {
             console.log('FINISH', gameStat);
