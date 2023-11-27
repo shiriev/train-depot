@@ -10,19 +10,13 @@ import { StartObject } from './GameObjects/StartObject';
 import { TrainStopObject } from './GameObjects/TrainStopObject';
 import { TrainObject } from './GameObjects/TrainObject';
 import * as Constants from './GameObjects/Constants';
+import { Scoreboard } from './GameObjects/Scoreboard';
 
 export class GameScene extends Phaser.Scene {
     grid: Grid;
 
     preload(): void {
         // this.load.setPath('public/');
-        this.load.image(Constants.RailLeftImage, Images.RailLeftImage);
-        this.load.image(Constants.RailRightImage, Images.RailRightImage);
-        this.load.image(Constants.RailForwardImage, Images.RailForwardImage);
-        this.load.image(Constants.LeverForwardNotLeftImage, Images.LeverForwardNotLeftImage);
-        this.load.image(Constants.LeverForwardNotRightImage, Images.LeverForwardNotRightImage);
-        this.load.image(Constants.LeverLeftNotForwardImage, Images.LeverLeftNotForwardImage);
-        this.load.image(Constants.LeverRightNotForwardImage, Images.LeverRightNotForwardImage);
         this.load.spritesheet(Constants.Tiles, Images.Tiles, { frameWidth: 100 });
     }
 
@@ -68,6 +62,8 @@ export class GameScene extends Phaser.Scene {
         //     train.subscribeOnFinish((tr, success) => console.log(success));
         //     train.goNext();
         // }, 2000);
+
+        new Scoreboard(this, this.grid, 500, 500);
 
         this.grid.subscribeOnGameFinished(gameStat => {
             console.log('FINISH', gameStat);

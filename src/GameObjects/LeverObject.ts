@@ -17,7 +17,6 @@ export class LeverObject {
         });
         leverObject.setAngle(Helper.getAngle(lever.GetStartDirection()));
         Phaser.Actions.RotateAroundDistance([leverObject], { x: point.x * Constants.Line + Constants.Line / 2, y: point.y * Constants.Line + Constants.Line / 2 }, Phaser.Math.DegToRad(Helper.getAngle(lever.GetStartDirection())), Constants.Line * Math.SQRT2 / 2);
-        // const leverObject = gameScene.add.image(point.x * Constants.Line + Constants.Line / 2, point.y * Constants.Line + Constants.Line / 2, Constants.Line, Constants.Line, 65280);
         leverObject.setInteractive();
         leverObject.on('pointerdown', () => {
             const turn = lever.TurnLever();

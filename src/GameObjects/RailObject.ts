@@ -8,20 +8,27 @@ export class RailObject
 {
     constructor(gameScene: Phaser.Scene, rail: Rail) {
         const point = rail.GetPosition();
-        let imagePath: string = '';
+        let frame: number;
         switch (rail.GetRailType())
         {
             case ERailType.Forward:
-                imagePath = Constants.RailForwardImage;
+                frame = 4;
                 break;
             case ERailType.Left:
-                imagePath = Constants.RailLeftImage;
+                frame = 5
                 break;
             case ERailType.Right:
-                imagePath = Constants.RailRightImage;
+                frame = 6;
                 break;
         }
-        const image = gameScene.add.image(point.x * Constants.Line + Constants.Line / 2, point.y * Constants.Line + Constants.Line / 2, imagePath);
-        image.setAngle(Helper.getAngle(rail.GetStartDirection()));
+        const railObject = gameScene.make.image({
+            key: Constants.Tiles,
+            frame: frame,
+            x: point.x * Constants.Line,
+            y: point.y * Constants.Line,
+            origin: 0
+        });
+        railObject.setAngle(Helper.getAngle(rail.GetStartDirection()));
+        Phaser.Actions.RotateAroundDistance([railObject], { x: point.x * Constants.Line + Constants.Line / 2, y: point.y * Constants.Line + Constants.Line / 2 }, Phaser.Math.DegToRad(Helper.getAngle(rail.GetStartDirection())), Constants.Line * Math.SQRT2 / 2);
     }
 }
