@@ -8,10 +8,14 @@ class MenuScene extends Phaser.Scene
 
 const config = {
     type: Phaser.AUTO,
-    width: 800,
-    height: 600,
     scene: [GameScene],
     backgroundColor: '#4488aa',
+    scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: 600,
+        height: 800
+    },
 };
 
 const game = new Phaser.Game(config);

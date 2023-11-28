@@ -72,7 +72,7 @@ export class TrainObject {
                 onComplete: () => this.train.goNext(),
             });
         } else {
-            const turnRadius = 15;
+            const turnRadius = 45;
             const lineDuration = (Constants.Line / 2 - turnRadius) / Constants.Speed;
             const turnDuration = (Math.PI * turnRadius / 2) / Constants.Speed;
             let angle = '';

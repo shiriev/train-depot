@@ -64,8 +64,8 @@ export class GameScene extends Phaser.Scene {
         //     train.goNext();
         // }, 2000);
 
-        new Scoreboard(this, this.grid, 500, 500);
-        new PauseButton(this, 400, 500);
+        new Scoreboard(this, this.grid, 500, 750);
+        new PauseButton(this, 400, 750);
 
         this.grid.subscribeOnGameFinished(gameStat => {
             console.log('FINISH', gameStat);
