@@ -1,14 +1,11 @@
 import Phaser from 'phaser';
 import { GameScene } from './GameScene';
-
-class MenuScene extends Phaser.Scene
-{
-
-}
+import { MenuScene } from './MenuScene';
+import { PauseScene } from './PauseScene';
 
 const config = {
     type: Phaser.AUTO,
-    scene: [GameScene],
+    scene: [ MenuScene, GameScene, PauseScene ],
     backgroundColor: '#4488aa',
     scale: {
         mode: Phaser.Scale.FIT,

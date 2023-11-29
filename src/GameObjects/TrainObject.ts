@@ -13,7 +13,7 @@ export class TrainObject {
         this.train = train;
         this.createTrainObject(train);
         train.subscribeOnStep((tr, oldPath, newPath, angle) => this.actTrain(oldPath, newPath, angle));
-        train.subscribeOnFinish((tr, success) => console.log(success));
+        train.subscribeOnFinish((tr, success) => console.log('FIN', success));
         train.goNext();
     }
 
@@ -35,7 +35,6 @@ export class TrainObject {
                 xAdd = -Constants.Line  / 2;
                 break;
         }
-        console.log('train', train, train.GetPosition(), train.GetDirection(), Helper.getAngle(train.GetDirection()), xAdd, yAdd);
         this.gameObject = this.gameScene.add.rectangle(point.x * Constants.Line + Constants.Line / 2 + xAdd, point.y * Constants.Line + Constants.Line / 2 + yAdd, 20, 50, Helper.parseColor(train.color));
         this.gameObject.setAngle(Helper.getAngle(train.GetDirection()));
     }
@@ -62,7 +61,6 @@ export class TrainObject {
                     xAdd = Constants.Line / 2;
                     break;
             }
-            console.log('step forward', angleType, oldPath, newPath, xAdd, yAdd);
             this.gameScene.tweens.add({
                 targets: this.gameObject,
                 duration: duration,

@@ -6,13 +6,8 @@ export class PauseButton {
         const button = scene.add.text(x, y, "pause");
         rectangle.setInteractive();
         rectangle.on("pointerdown", () => {
-            if (scene.sys.game.scene.isPaused(scene)) {
-                scene.sys.game.scene.resume(scene);
-                button.text = "pause";
-            } else {
-                scene.sys.game.scene.pause(scene);
-                button.text = "resume";
-            }
+            scene.scene.pause(scene);
+            scene.scene.launch('PauseScene');
         });
     }
 }

@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { Grid } from './Logic/Grid';
 import { parseLevel } from './Logic/LevelParser';
-import { Levels } from './Logic/Levels';
+import { Level, Levels } from './Logic/Levels';
 import { PathVisitor } from './Logic/PathVisitor';
 import * as Images from './public';
 import { RailObject } from './GameObjects/RailObject';
@@ -15,14 +15,22 @@ import { PauseButton } from './GameObjects/PauseButton';
 
 export class GameScene extends Phaser.Scene {
     grid: Grid;
+    level: Level;
+
+    constructor() {
+        super('GameScene');
+    }
 
     preload(): void {
-        // this.load.setPath('public/');
         this.load.spritesheet(Constants.Tiles, Images.Tiles, { frameWidth: 100 });
     }
 
+    init(data: { level: Level}) {
+        this.level = data.level;
+    }
+
     create(): void {
-        const parsingLevelResult = parseLevel(Levels[1]);
+        const parsingLevelResult = parseLevel(this.level);
 
         if (parsingLevelResult.success === false) {
             throw new Error(parsingLevelResult.error);
@@ -38,6 +46,7 @@ export class GameScene extends Phaser.Scene {
         ));
 
         const timedEvent = this.time.addEvent({
+            startAt: 3000,
             delay: 4000,
             callback: () => {
                 const train = this.grid.runNewTrain();
