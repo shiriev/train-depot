@@ -12,35 +12,49 @@ export class TrainObject {
         this.gameScene = gameScene;
         this.train = train;
         this.createTrainObject(train);
-        train.subscribeOnStep((tr, oldPath, newPath, angle) => this.actTrain(oldPath, newPath, angle));
-        train.subscribeOnFinish((tr, success) => console.log('FIN', success));
+        train.subscribeOnStart((tr, path) => this.startTrain(path));
+        train.subscribeOnStep((tr, oldPath, newPath, angle) => this.moveTrain(oldPath, newPath, angle));
+        train.subscribeOnFinish((tr, success, path) => this.finishTrain(success, path));
         train.goNext();
     }
 
     private createTrainObject(train: Train): void {
         const point = train.GetPosition();
-        let xAdd = 0;
-        let yAdd = 0;
-        switch (train.GetDirection()) {
-            case EDirection.Up:
-                yAdd = Constants.Line / 2;
-                break;
-            case EDirection.Down:
-                yAdd = -Constants.Line  / 2;
-                break;
-            case EDirection.Left:
-                xAdd = Constants.Line  / 2;
-                break;
-            case EDirection.Right:
-                xAdd = -Constants.Line  / 2;
-                break;
-        }
-        this.gameObject = this.gameScene.add.rectangle(point.x * Constants.Line + Constants.Line / 2 + xAdd, point.y * Constants.Line + Constants.Line / 2 + yAdd, 20, 50, Helper.parseColor(train.color));
+        this.gameObject = this.gameScene.add.rectangle(point.x * Constants.Line + Constants.Line / 2, point.y * Constants.Line + Constants.Line / 2, 20, 50, Helper.parseColor(train.color));
         this.gameObject.setAngle(Helper.getAngle(train.GetDirection()));
     }
 
-    private actTrain(oldPath: IPath, newPath: IPath, angleType: ETurnAngle): void {
-        // const newPoint = newPath.GetPosition();
+    private startTrain(path: IPath): void {
+        const oldPoint = path.GetPosition();
+
+        const duration = Constants.Line / 2 / Constants.Speed;
+        let xAdd = 0;
+        let yAdd = 0;
+        switch (path.GetDirection()) {
+            case EDirection.Up:
+                yAdd = -Constants.Line / 2;
+                break;
+            case EDirection.Down:
+                yAdd = Constants.Line / 2;
+                break;
+            case EDirection.Left:
+                xAdd = -Constants.Line / 2;
+                break;
+            case EDirection.Right:
+                xAdd = Constants.Line / 2;
+                break;
+        }
+        this.gameScene.tweens.add({
+            targets: this.gameObject,
+            duration: duration,
+            x: oldPoint.x * Constants.Line + Constants.Line / 2 + xAdd,
+            y: oldPoint.y * Constants.Line + Constants.Line / 2 + yAdd,
+            ease: 'linear',
+            onComplete: () => this.train.goNext(),
+        });
+    }
+
+    private moveTrain(oldPath: IPath, newPath: IPath, angleType: ETurnAngle): void {
         const oldPoint = oldPath.GetPosition();
 
         if (angleType === ETurnAngle.Forward) {
@@ -70,9 +84,8 @@ export class TrainObject {
                 onComplete: () => this.train.goNext(),
             });
         } else {
-            const turnRadius = 45;
-            const lineDuration = (Constants.Line / 2 - turnRadius) / Constants.Speed;
-            const turnDuration = (Math.PI * turnRadius / 2) / Constants.Speed;
+            const lineDuration = (Constants.Line / 2 - Constants.TurnRadius) / Constants.Speed;
+            const turnDuration = (Math.PI * Constants.TurnRadius / 2) / Constants.Speed;
             let angle = '';
             let xStartK = 0;
             let yStartK = 0;
@@ -129,8 +142,8 @@ export class TrainObject {
                 tweens: [
                     {
                         duration: lineDuration,
-                        x: oldPoint.x * Constants.Line + Constants.Line / 2 + turnRadius * xStartK,
-                        y: oldPoint.y * Constants.Line + Constants.Line / 2 + turnRadius * yStartK,
+                        x: oldPoint.x * Constants.Line + Constants.Line / 2 + Constants.TurnRadius * xStartK,
+                        y: oldPoint.y * Constants.Line + Constants.Line / 2 + Constants.TurnRadius * yStartK,
                     },
                     {
                         duration: turnDuration,
@@ -139,11 +152,11 @@ export class TrainObject {
                             ease: 'linear',
                         },
                         x: {
-                            value: oldPoint.x * Constants.Line + Constants.Line / 2 + turnRadius * xEndK,
+                            value: oldPoint.x * Constants.Line + Constants.Line / 2 + Constants.TurnRadius * xEndK,
                             ease: xEase,
                         },
                         y: {
-                            value: oldPoint.y * Constants.Line + Constants.Line / 2 + turnRadius * yEndK,
+                            value: oldPoint.y * Constants.Line + Constants.Line / 2 + Constants.TurnRadius * yEndK,
                             ease: yEase,
                         },
                     },
@@ -156,5 +169,19 @@ export class TrainObject {
                 onComplete: () => this.train.goNext(),
             });
         }
+    }
+
+    private finishTrain(success: boolean, path: IPath): void {
+        const oldPoint = path.GetPosition();
+
+        const duration = Constants.Line / 2 / Constants.Speed;
+        this.gameScene.tweens.add({
+            targets: this.gameObject,
+            duration: duration,
+            x: oldPoint.x * Constants.Line + Constants.Line / 2,
+            y: oldPoint.y * Constants.Line + Constants.Line / 2,
+            ease: 'linear',
+            onComplete: () => this.gameObject.removeFromDisplayList(),
+        });
     }
 }

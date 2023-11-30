@@ -11,11 +11,14 @@ export class MenuScene extends Phaser.Scene {
 
     create(): void {
         for (let i = 0; i < Levels.length; ++i) {
-            const button = this.add.text(200, 200 + i * 100, (i + 1).toString());
+            const style: Phaser.Types.GameObjects.Text.TextStyle = {
+                fontSize: 30,
+            };
+            const button = this.add.text(200, 200 + i * 100, `Уровень ${i + 1}`, style);
             button.setInteractive();
             button.on('pointerdown', () => {
                 this.loadLevel(i);
-            })
+            });
         }
     }
 

@@ -41,7 +41,7 @@ function getStartPoint(level: Level): Point {
     for (const line of level.map) {
         for (let x = 0; x * 2 < line.length; x++) {
             if (line[x * 2] === '+') {
-                return new Point(x, y);
+                return { x: x, y: y };
             }
         }
         y++;
@@ -124,13 +124,13 @@ function parseDirection(map: string[], point: Point): EDirection {
 function getNewPathPoint(point: Point, direction: EDirection): Point {
     switch (direction) {
         case EDirection.Up:
-            return new Point(point.x, point.y - 1);
+            return { x: point.x, y: point.y - 1 };
         case EDirection.Down:
-            return new Point(point.x, point.y + 1);
+            return { x: point.x, y: point.y + 1 };
         case EDirection.Right:
-            return new Point(point.x + 1, point.y);
+            return { x: point.x + 1, y: point.y };
         case EDirection.Left:
-            return new Point(point.x - 1, point.y);
+            return { x: point.x - 1, y: point.y };
         default:
             throw new Error(`Unknown direction type (${direction})`);
     }

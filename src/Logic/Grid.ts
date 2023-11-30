@@ -1,6 +1,7 @@
 import { IPath } from './IPath';
 import { Train } from './Train';
 import { IPathVisitor } from './IPathVisitor';
+import { GameStat } from './GameStat';
 
 export class Grid
 {
@@ -63,8 +64,3 @@ export class Grid
     }
 }
 
-type GameStat = {
-    totalTrainCount: number,
-    finishedTrainCount: number,
-    succesfullFinishedTrainCount: number
-}

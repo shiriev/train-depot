@@ -1,16 +1,20 @@
 import Phaser from 'phaser';
+import { GameStat } from './Logic/GameStat';
 import { Level } from './Logic/Levels';
 
-export class PauseScene extends Phaser.Scene {
+export class FinishScene extends Phaser.Scene {
+    stat: GameStat;
     level: Level;
+
     preload(): void {
     }
 
     constructor() {
-        super('PauseScene');
+        super('FinishScene');
     }
 
-    init(data: { level: Level }) {
+    init(data: { stat: GameStat, level: Level }) {
+        this.stat = data.stat;
         this.level = data.level;
     }
 
@@ -18,14 +22,7 @@ export class PauseScene extends Phaser.Scene {
         const style: Phaser.Types.GameObjects.Text.TextStyle = {
             fontSize: 30,
         };
-        const resumeButton = this.add.text(200, 200, "Продолжить", style);
-        resumeButton.setInteractive();
-        resumeButton.on('pointerdown', () => {
-            this.scene.resume('GameScene');
-            this.scene.stop('PauseScene');
-        });
-
-        const restartButton = this.add.text(200, 300, "Заново", style);
+        const restartButton = this.add.text(200, 200, "Заново", style);
         restartButton.setInteractive();
         restartButton.on('pointerdown', () => {
             this.scene.stop('FinishScene');
@@ -33,7 +30,7 @@ export class PauseScene extends Phaser.Scene {
             this.scene.start('GameScene', { level: this.level });
         });
 
-        const menuButton = this.add.text(200, 400, "Меню", style);
+        const menuButton = this.add.text(200, 300, "Меню", style);
         menuButton.setInteractive();
         menuButton.on('pointerdown', () => {
             this.scene.stop('GameScene');

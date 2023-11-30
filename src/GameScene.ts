@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { Grid } from './Logic/Grid';
 import { parseLevel } from './Logic/LevelParser';
-import { Level, Levels } from './Logic/Levels';
+import { Level } from './Logic/Levels';
 import { PathVisitor } from './Logic/PathVisitor';
 import * as Images from './public';
 import { RailObject } from './GameObjects/RailObject';
@@ -25,7 +25,7 @@ export class GameScene extends Phaser.Scene {
         this.load.spritesheet(Constants.Tiles, Images.Tiles, { frameWidth: 100 });
     }
 
-    init(data: { level: Level}) {
+    init(data: { level: Level }) {
         this.level = data.level;
     }
 
@@ -51,7 +51,6 @@ export class GameScene extends Phaser.Scene {
             callback: () => {
                 const train = this.grid.runNewTrain();
                 if (train === undefined) {
-                    // clearInterval(timerId);
                     timedEvent.remove();
                     return;
                 }
@@ -61,23 +60,11 @@ export class GameScene extends Phaser.Scene {
             loop: true
         });
 
-        // const timerId = setInterval(() => {
-        //     const train = this.grid.runNewTrain();
-        //     if (train === undefined) {
-        //         clearInterval(timerId);
-        //         return;
-        //     }
-        //     const trainObject = this.createTrainObject(train);
-        //     train.subscribeOnStep((tr, oldPath, newPath, angle) => this.actTrain(trainObject, tr, oldPath, newPath, angle));
-        //     train.subscribeOnFinish((tr, success) => console.log(success));
-        //     train.goNext();
-        // }, 2000);
-
-        new Scoreboard(this, this.grid, 500, 750);
-        new PauseButton(this, 400, 750);
+        new Scoreboard(this, this.grid, 300, 750);
+        new PauseButton(this, 100, 750, this.level);
 
         this.grid.subscribeOnGameFinished(gameStat => {
-            console.log('FINISH', gameStat);
+            this.scene.launch('FinishScene', { stat: gameStat, level: this.level });
         });
     }
 }

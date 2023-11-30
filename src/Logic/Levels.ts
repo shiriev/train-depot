@@ -5,7 +5,7 @@ export type Level = {
 
 export const Levels: Level[] = [
     {
-        trainCount: 20,
+        trainCount: 3,
         map: [
             "+>|>}>}>#>",
             "  #<]v|v  ",
