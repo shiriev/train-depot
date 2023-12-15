@@ -1,11 +1,10 @@
-import { IPath } from './IPath';
-import { IPathVisitor } from './IPathVisitor';
-import { IStop } from './IStop';
-import { EDirection, ETurnAngle, EColor } from './Enums';
+import { ICellVisitor } from './ICellVisitor';
+import { IStop } from './ICell';
+import { EDirection, EColor } from './Enums';
 import { Point } from './Point';
 
 
-export class TrainStop implements IPath, IStop {
+export class TrainStop implements IStop {
     private readonly point: Point;
     private readonly direction: EDirection;
     private readonly color: EColor;
@@ -17,10 +16,6 @@ export class TrainStop implements IPath, IStop {
         this.point = point;
         this.direction = direction;
         this.color = color;
-    }
-
-    GetNextPath(): [IPath, ETurnAngle] | null {
-        return null;
     }
 
     GetColor(): EColor {
@@ -39,15 +34,13 @@ export class TrainStop implements IPath, IStop {
         return true;
     }
 
-    GetStop(): IStop | null {
-        return this;
-    }
-
     GetPosition(): Point {
         return this.point;
     }
 
-    AcceptVisitor(visitor: IPathVisitor): void {
+    Type: 'stop' = 'stop';
+
+    AcceptVisitor(visitor: ICellVisitor): void {
         visitor.VisitTrainStop(this);
     }
 }

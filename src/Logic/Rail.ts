@@ -1,6 +1,5 @@
-import { IPath } from './IPath';
-import { IPathVisitor } from './IPathVisitor';
-import { IStop } from './IStop';
+import { ICell, IPath } from './ICell';
+import { ICellVisitor } from './ICellVisitor';
 import { EDirection, ETurnAngle, ERailType } from './Enums';
 import { Point } from './Point';
 import { MakeTurn } from './PathUtils';
@@ -10,28 +9,20 @@ export class Rail implements IPath {
     private readonly point: Point;
     private readonly direction: EDirection;
     private readonly type: ERailType;
-    private readonly nextStep: IPath;
+    private readonly nextStep: ICell;
 
     constructor(point: Point,
         direction: EDirection,
         type: ERailType,
-        nextStep: IPath) {
+        nextStep: ICell) {
         this.point = point;
         this.direction = direction;
         this.type = type;
         this.nextStep = nextStep;
     }
 
-    GetNextPath(): [IPath, ETurnAngle] | null {
+    GetNextPath(): [ICell, ETurnAngle] {
         return [this.nextStep, this.GetTurn()];
-    }
-
-    IsStop(): boolean {
-        return false;
-    }
-
-    GetStop(): IStop | null {
-        return null;
     }
 
     GetDirection(): EDirection {
@@ -50,9 +41,11 @@ export class Rail implements IPath {
         return this.type;
     }
 
-    AcceptVisitor(visitor: IPathVisitor): void {
+    AcceptVisitor(visitor: ICellVisitor): void {
         visitor.VisitRail(this);
     }
+
+    Type: 'path' = 'path';
 
     private GetTurn(): ETurnAngle {
         switch (this.type) {

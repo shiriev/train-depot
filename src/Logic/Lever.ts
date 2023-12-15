@@ -1,40 +1,32 @@
-import { IPath } from './IPath';
-import { IPathVisitor } from './IPathVisitor';
-import { IStop } from './IStop';
+import { ICellVisitor } from './ICellVisitor';
+import { IPath } from './ICell';
 import { EDirection, ETurnAngle, ELeverType, ELeverTurn } from './Enums';
 import { Point } from './Point';
 import { MakeTurn } from './PathUtils';
+import { ICell } from './ICell';
 
 export class Lever implements IPath {
     private readonly point: Point;
     private readonly direction: EDirection;
     private readonly type: ELeverType;
-    private readonly paths: IPath[];
+    private readonly cells: ICell[];
     private currentTurn: ELeverTurn;
 
     constructor(point: Point,
         direction: EDirection,
         type: ELeverType,
-        path1: IPath,
-        path2: IPath,
+        cell1: ICell,
+        cell2: ICell,
         initTurn: ELeverTurn) {
         this.point = point;
         this.direction = direction;
         this.type = type;
-        this.paths = [path1, path2];
+        this.cells = [cell1, cell2];
         this.currentTurn = initTurn;
     }
 
-    GetNextPath(): [IPath, ETurnAngle] | null {
-        return [this.currentTurn === ELeverTurn.First ? this.paths[0] : this.paths[1], this.GetTurn()];
-    }
-
-    IsStop(): boolean {
-        return false;
-    }
-
-    GetStop(): IStop | null {
-        return null;
+    GetNextPath(): [ICell, ETurnAngle] {
+        return [this.currentTurn === ELeverTurn.First ? this.cells[0] : this.cells[1], this.GetTurn()];
     }
 
     GetDirection(): EDirection {
@@ -62,9 +54,11 @@ export class Lever implements IPath {
         return this.direction;
     }
 
-    AcceptVisitor(visitor: IPathVisitor): void {
+    AcceptVisitor(visitor: ICellVisitor): void {
         visitor.VisitLever(this);
     }
+
+    Type: 'path' = 'path';
 
     private GetTurn(): ETurnAngle {
         switch (this.type) {

@@ -1,10 +1,10 @@
-import { IPathVisitor } from './IPathVisitor';
+import { ICellVisitor } from './ICellVisitor';
 import { Rail } from './Rail';
 import { Start } from './Start';
 import { TrainStop } from './TrainStop';
 import { Lever } from './Lever';
 
-export class PathVisitor implements IPathVisitor {
+export class CellVisitor implements ICellVisitor {
     private readonly railVisit: (rail: Rail) => void;
     private readonly startVisit: (start: Start) => void;
     private readonly trainStopVisit: (trainStop: TrainStop) => void;

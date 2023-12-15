@@ -1,6 +1,11 @@
 import Phaser from 'phaser';
 import { GameStat } from './Logic/GameStat';
 import { Level } from './Logic/Levels';
+import { FinishSceneInitData, FinishSceneMeta } from './FinishSceneMeta';
+import * as SceneHelper from './SceneHelper';
+import { GameSceneMeta } from './GameSceneMeta';
+import { MenuSceneMeta } from './MenuSceneMeta';
+
 
 export class FinishScene extends Phaser.Scene {
     stat: GameStat;
@@ -10,10 +15,10 @@ export class FinishScene extends Phaser.Scene {
     }
 
     constructor() {
-        super('FinishScene');
+        super(new FinishSceneMeta().name);
     }
 
-    init(data: { stat: GameStat, level: Level }) {
+    init(data: FinishSceneInitData) {
         this.stat = data.stat;
         this.level = data.level;
     }
@@ -25,16 +30,17 @@ export class FinishScene extends Phaser.Scene {
         const restartButton = this.add.text(200, 200, "Заново", style);
         restartButton.setInteractive();
         restartButton.on('pointerdown', () => {
-            this.scene.stop('FinishScene');
-            this.scene.stop('GameScene');
-            this.scene.start('GameScene', { level: this.level });
+            SceneHelper.Stop(this.scene, new FinishSceneMeta());
+            SceneHelper.Stop(this.scene, new GameSceneMeta());
+            SceneHelper.Start(this.scene, new GameSceneMeta(), { level: this.level });
         });
 
         const menuButton = this.add.text(200, 300, "Меню", style);
         menuButton.setInteractive();
         menuButton.on('pointerdown', () => {
-            this.scene.stop('GameScene');
-            this.scene.start('MenuScene');
+            SceneHelper.Stop(this.scene, new FinishSceneMeta());
+            SceneHelper.Stop(this.scene, new GameSceneMeta());
+            SceneHelper.Start(this.scene, new MenuSceneMeta(), {});
         });
     }
 }

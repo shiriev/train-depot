@@ -1,4 +1,6 @@
 import { Level } from "../Logic/Levels";
+import { PauseSceneMeta } from "../PauseSceneMeta";
+import * as SceneHelper from "../SceneHelper";
 
 
 export class PauseButton {
@@ -11,7 +13,7 @@ export class PauseButton {
         button.setInteractive();
         button.on("pointerdown", () => {
             scene.scene.pause(scene);
-            scene.scene.launch('PauseScene', { level: level });
+            SceneHelper.Launch(scene.scene, new PauseSceneMeta(), { level: level });
         });
     }
 }

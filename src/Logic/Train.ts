@@ -1,18 +1,17 @@
-import { IPath } from './IPath';
-import { EDirection, ETurnAngle, EColor } from './Enums';
+import { ICell, IPath, IStop } from './ICell';
+import { EDirection, EColor, ETurnAngle } from './Enums';
 import { Point } from './Point';
-import { Tilemaps } from 'phaser';
 
 export class Train {
     public readonly color: EColor;
 
-    private currentPath: IPath;
+    private currentPath: ICell;
     private onStartCallacks: ((train: Train, path: IPath) => void)[];
-    private onStepCallacks: ((train: Train, oldPath: IPath, newPath: IPath, angle: ETurnAngle) => void)[];
-    private onFinishCallacks: ((train: Train, success: boolean, path: IPath) => void)[];
+    private onStepCallacks: ((train: Train, oldPath: IPath, newPath: ICell, turnAngle: ETurnAngle) => void)[];
+    private onFinishCallacks: ((train: Train, success: boolean, path: ICell) => void)[];
     private pathNumber: number;
 
-    constructor(color: EColor, initPath: IPath) {
+    constructor(color: EColor, initPath: ICell) {
         this.color = color;
         this.currentPath = initPath;
         this.onStartCallacks = [];
@@ -21,20 +20,21 @@ export class Train {
         this.pathNumber = 0;
     }
 
-    goNext(): void {
-        if (this.currentPath.IsStop()) {
-            const stop = this.currentPath.GetStop();
+    GoNext(): void {
+        if (this.currentPath.Type === 'stop') {
+            const stop = this.currentPath;
             this.onFinishCallacks.forEach(callback => callback(this, stop.GetColor() === this.color, this.currentPath));
             this.pathNumber++;
             return;
         }
-        const [newPath, angle] = this.currentPath.GetNextPath();
+        
+        const [newPath, turnAngle] = this.currentPath.GetNextPath();
         const oldPath = this.currentPath;
         this.currentPath = newPath;
         if (this.pathNumber === 0) {
             this.onStartCallacks.forEach(callback => callback(this, oldPath));
         } else {
-            this.onStepCallacks.forEach(callback => callback(this, oldPath, newPath, angle));
+            this.onStepCallacks.forEach(callback => callback(this, oldPath, newPath, turnAngle));
         }
         this.pathNumber++;
     }
@@ -43,19 +43,15 @@ export class Train {
         return this.currentPath.GetPosition();
     }
 
-    GetDirection(): EDirection {
-        return this.currentPath.GetDirection();
-    }
-
-    subscribeOnStart(onStart: (train: Train, path: IPath) => void) {
+    SubscribeOnStart(onStart: (train: Train, path: IPath) => void) {
         this.onStartCallacks.push(onStart);
     }
 
-    subscribeOnStep(onStep: (train: Train, oldPath: IPath, newPath: IPath, angle: ETurnAngle) => void) {
+    SubscribeOnStep(onStep: (train: Train, oldPath: IPath, newPath: ICell, turnAngle: ETurnAngle) => void) {
         this.onStepCallacks.push(onStep);
     }
 
-    subscribeOnFinish(onFinish: (train: Train, success: boolean, path: IPath) => void) {
+    SubscribeOnFinish(onFinish: (train: Train, success: boolean, path: IStop) => void) {
         this.onFinishCallacks.push(onFinish);
     }
 }

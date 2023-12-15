@@ -1,12 +1,16 @@
 import Phaser from 'phaser';
 import { Levels } from './Logic/Levels';
+import { MenuSceneMeta } from './MenuSceneMeta';
+import { GameSceneMeta } from './GameSceneMeta';
+import * as SceneHelper from './SceneHelper';
+
 
 export class MenuScene extends Phaser.Scene {
     preload(): void {
     }
 
     constructor() {
-        super('MenuScene');
+        super(new MenuSceneMeta().name);
     }
 
     create(): void {
@@ -23,6 +27,6 @@ export class MenuScene extends Phaser.Scene {
     }
 
     loadLevel(levelNumber: number) {
-        this.scene.start('GameScene', { level: Levels[levelNumber] });
+        SceneHelper.Start(this.scene, new GameSceneMeta(), { level: Levels[levelNumber] });
     }
 }

@@ -1,6 +1,5 @@
-import { IPath } from './IPath';
-import { IPathVisitor } from './IPathVisitor';
-import { IStop } from './IStop';
+import { ICell, IPath } from './ICell';
+import { ICellVisitor } from './ICellVisitor';
 import { EDirection, ETurnAngle } from './Enums';
 import { Point } from './Point';
 
@@ -8,26 +7,18 @@ import { Point } from './Point';
 export class Start implements IPath {
     private readonly point: Point;
     private readonly direction: EDirection;
-    private readonly nextStep: IPath;
+    private readonly nextStep: ICell;
 
     constructor(point: Point,
         direction: EDirection,
-        nextStep: IPath) {
+        nextStep: ICell) {
         this.point = point;
         this.direction = direction;
         this.nextStep = nextStep;
     }
 
-    GetNextPath(): [IPath, ETurnAngle] | null {
+    GetNextPath(): [ICell, ETurnAngle]  {
         return [this.nextStep, ETurnAngle.Forward];
-    }
-
-    IsStop(): boolean {
-        return false;
-    }
-
-    GetStop(): IStop | null {
-        return null;
     }
 
     GetDirection(): EDirection {
@@ -42,7 +33,9 @@ export class Start implements IPath {
         return this.point;
     }
 
-    AcceptVisitor(visitor: IPathVisitor): void {
+    Type: 'path' = 'path';
+
+    AcceptVisitor(visitor: ICellVisitor): void {
         visitor.VisitStart(this);
     }
 }

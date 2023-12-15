@@ -1,6 +1,6 @@
 import { EColor, EDirection, ELeverTurn, ELeverType, ERailType, ETurnAngle } from "./Enums";
 import { Grid } from "./Grid";
-import { IPath } from "./IPath";
+import { ICell, IPath } from "./ICell";
 import { Level } from "./Levels";
 import { Lever } from "./Lever";
 import { MakeTurn } from "./PathUtils";
@@ -14,13 +14,13 @@ export function parseLevel(level: Level): LevelParsingResult {
     try {
         const startPoint = getStartPoint(level);
 
-        const paths: IPath[] = [];
+        const cells: ICell[] = [];
         const colors: EColor[] = [];
-        const startPath = fillPaths(startPoint, level, paths, colors);
+        const startPath = fillCells(startPoint, level, cells, colors);
         const trainColors = generateTrainColors(level.trainCount, colors);
         const trains = trainColors.map(c => new Train(c, startPath));
 
-        return { success: true, grid: new Grid(paths, trains) };
+        return { success: true, grid: new Grid(cells, trains) };
     }
     catch (errorAny) {
         const error: Error = errorAny;
@@ -49,7 +49,7 @@ function getStartPoint(level: Level): Point {
     throw new Error(`Level does not have start symbol (+)`);
 }
 
-function fillPaths(point: Point, level: Level, paths: IPath[], colors: EColor[]): IPath {
+function fillCells(point: Point, level: Level, cells: ICell[], colors: EColor[]): ICell {
     const direction = parseDirection(level.map, point);
     if (typeof level.map[point.y] === 'undefined' || typeof level.map[point.y][point.x * 2] === 'undefined') {
         throw new Error(`Map does not have element at [${point.y}][${point.x * 2}]`);
@@ -57,36 +57,36 @@ function fillPaths(point: Point, level: Level, paths: IPath[], colors: EColor[])
 
     switch (level.map[point.y][point.x * 2]) {
         case '+':
-            const startNextPath = fillPaths(getNewPathPoint(point, direction), level, paths, colors);
+            const startNextPath = fillCells(getNewPathPoint(point, direction), level, cells, colors);
             const start = new Start(point, direction, startNextPath);
-            paths.push(start);
+            cells.push(start);
             return start;
         case '|':
-            const railForwardNextPath = fillPaths(getNewPathPoint(point, direction), level, paths, colors);
+            const railForwardNextPath = fillCells(getNewPathPoint(point, direction), level, cells, colors);
             const railForward = new Rail(point, direction, ERailType.Forward, railForwardNextPath);
-            paths.push(railForward);
+            cells.push(railForward);
             return railForward;
         case '[':
-            const railLeftNextPath = fillPaths(getNewPathPoint(point, MakeTurn(direction, ETurnAngle.Left)), level, paths, colors);
+            const railLeftNextPath = fillCells(getNewPathPoint(point, MakeTurn(direction, ETurnAngle.Left)), level, cells, colors);
             const railLeft = new Rail(point, direction, ERailType.Left, railLeftNextPath);
-            paths.push(railLeft);
+            cells.push(railLeft);
             return railLeft;
         case ']':
-            const railRightNextPath = fillPaths(getNewPathPoint(point, MakeTurn(direction, ETurnAngle.Right)), level, paths, colors);
+            const railRightNextPath = fillCells(getNewPathPoint(point, MakeTurn(direction, ETurnAngle.Right)), level, cells, colors);
             const railRight = new Rail(point, direction, ERailType.Right, railRightNextPath);
-            paths.push(railRight);
+            cells.push(railRight);
             return railRight;
         case '{':
-            const leverLeftNextPath1 = fillPaths(getNewPathPoint(point, MakeTurn(direction, ETurnAngle.Forward)), level, paths, colors);
-            const leverLeftNextPath2 = fillPaths(getNewPathPoint(point, MakeTurn(direction, ETurnAngle.Left)), level, paths, colors);
+            const leverLeftNextPath1 = fillCells(getNewPathPoint(point, MakeTurn(direction, ETurnAngle.Forward)), level, cells, colors);
+            const leverLeftNextPath2 = fillCells(getNewPathPoint(point, MakeTurn(direction, ETurnAngle.Left)), level, cells, colors);
             const leverLeft = new Lever(point, direction, ELeverType.ForwardAndLeft, leverLeftNextPath1, leverLeftNextPath2, ELeverTurn.First);
-            paths.push(leverLeft);
+            cells.push(leverLeft);
             return leverLeft;
         case '}':
-            const leverRightNextPath1 = fillPaths(getNewPathPoint(point, MakeTurn(direction, ETurnAngle.Forward)), level, paths, colors);
-            const leverRightNextPath2 = fillPaths(getNewPathPoint(point, MakeTurn(direction, ETurnAngle.Right)), level, paths, colors);
+            const leverRightNextPath1 = fillCells(getNewPathPoint(point, MakeTurn(direction, ETurnAngle.Forward)), level, cells, colors);
+            const leverRightNextPath2 = fillCells(getNewPathPoint(point, MakeTurn(direction, ETurnAngle.Right)), level, cells, colors);
             const leverRight = new Lever(point, direction, ELeverType.ForwardAndRight, leverRightNextPath1, leverRightNextPath2, ELeverTurn.Second);
-            paths.push(leverRight);
+            cells.push(leverRight);
             return leverRight;
         case '#':
             const newColor: EColor = colors.length;
@@ -95,7 +95,7 @@ function fillPaths(point: Point, level: Level, paths: IPath[], colors: EColor[])
             }
             const stop = new TrainStop(point, direction, newColor);
             colors.push(newColor);
-            paths.push(stop);
+            cells.push(stop);
             return stop;
         default:
             throw new Error(`Unknown tile symbol ('${level.map[point.y][point.x * 2]}' at [${point.y}][${point.x * 2}])`);

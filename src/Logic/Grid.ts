@@ -1,11 +1,11 @@
-import { IPath } from './IPath';
 import { Train } from './Train';
-import { IPathVisitor } from './IPathVisitor';
+import { ICellVisitor } from './ICellVisitor';
 import { GameStat } from './GameStat';
+import { ICell } from './ICell';
 
 export class Grid
 {
-    private readonly paths: IPath[];
+    private readonly cells: ICell[];
     private readonly trains: Train[];
     private readonly totalTrainCount: number;
     private finishedTrainCount: number;
@@ -13,22 +13,22 @@ export class Grid
     private onStatChangedCallbacks: ((stat: GameStat) => void)[];
     private onGameFinishedCallbacks: ((stat: GameStat) => void)[];
 
-    constructor(paths: IPath[], trains: Train[]) {
-        this.paths = paths;
+    constructor(cells: ICell[], trains: Train[]) {
+        this.cells = cells;
         this.trains = trains.reverse();
         this.totalTrainCount = trains.length;
         this.finishedTrainCount = 0;
         this.succesfullFinishedTrainCount = 0;
         for (const train of trains) {
-            train.subscribeOnFinish((train: Train, success: boolean) => this.onTrainFinished(train, success));
+            train.SubscribeOnFinish((train: Train, success: boolean) => this.onTrainFinished(train, success));
         }
         this.onStatChangedCallbacks = [];
         this.onGameFinishedCallbacks = [];
     }
 
-    visitPaths(visitor: IPathVisitor): void {
-        for (const path of this.paths) {
-            path.AcceptVisitor(visitor);
+    visitPaths(visitor: ICellVisitor): void {
+        for (const cell of this.cells) {
+            cell.AcceptVisitor(visitor);
         }
     }
 
@@ -40,7 +40,7 @@ export class Grid
         this.onGameFinishedCallbacks.push(onGameFinished);
     }
 
-    runNewTrain(): Train {
+    runNewTrain(): Train | undefined {
         return this.trains.pop();
     }
 

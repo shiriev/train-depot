@@ -1,5 +1,5 @@
 import { EDirection, ETurnAngle } from "../Logic/Enums";
-import { IPath } from "../Logic/IPath";
+import { ICell, IPath, IStop } from "../Logic/ICell";
 import { Train } from "../Logic/Train";
 import * as Constants from "./Constants";
 import * as Helper from './Helper';
@@ -11,17 +11,35 @@ export class TrainObject {
     constructor(gameScene: Phaser.Scene, train: Train) {
         this.gameScene = gameScene;
         this.train = train;
-        this.createTrainObject(train);
-        train.subscribeOnStart((tr, path) => this.startTrain(path));
-        train.subscribeOnStep((tr, oldPath, newPath, angle) => this.moveTrain(oldPath, newPath, angle));
-        train.subscribeOnFinish((tr, success, path) => this.finishTrain(success, path));
-        train.goNext();
+        train.SubscribeOnStart((tr, path) =>  {
+            this.createTrainObject(tr, path); 
+            this.startTrain(path);
+        });
+        train.SubscribeOnStep((tr, oldPath, newPath, turnAngle) => this.moveTrain(oldPath, newPath, turnAngle));
+        train.SubscribeOnFinish((tr, success, path) => this.finishTrain(success, path));
+        train.GoNext();
     }
 
-    private createTrainObject(train: Train): void {
-        const point = train.GetPosition();
-        this.gameObject = this.gameScene.add.rectangle(point.x * Constants.Line + Constants.Line / 2, point.y * Constants.Line + Constants.Line / 2, 20, 50, Helper.parseColor(train.color));
-        this.gameObject.setAngle(Helper.getAngle(train.GetDirection()));
+    private createTrainObject(train: Train, path: IPath): void {
+        const point = path.GetPosition();
+        this.gameObject = this.gameScene.add.rectangle(point.x * Constants.Line + Constants.Line / 2, point.y * Constants.Line + Constants.Line / 2, 20, 40, Helper.parseColor(train.color));
+        this.gameObject.setAngle(Helper.getAngle(path.GetDirection()));
+        this.gameScene.tweens.chain({
+            targets: this.gameObject,
+            tweens: [
+                {
+                    duration: 500,
+                    width: 18,
+                    height: 43,
+                },
+                {
+                    duration: 500,
+                    width: 20,
+                    height: 40,
+                },
+            ],
+            loop: -1,
+        });
     }
 
     private startTrain(path: IPath): void {
@@ -50,11 +68,11 @@ export class TrainObject {
             x: oldPoint.x * Constants.Line + Constants.Line / 2 + xAdd,
             y: oldPoint.y * Constants.Line + Constants.Line / 2 + yAdd,
             ease: 'linear',
-            onComplete: () => this.train.goNext(),
+            onComplete: () => this.train.GoNext(),
         });
     }
 
-    private moveTrain(oldPath: IPath, newPath: IPath, angleType: ETurnAngle): void {
+    private moveTrain(oldPath: IPath, newPath: ICell, angleType: ETurnAngle): void {
         const oldPoint = oldPath.GetPosition();
 
         if (angleType === ETurnAngle.Forward) {
@@ -81,7 +99,7 @@ export class TrainObject {
                 x: oldPoint.x * Constants.Line + Constants.Line / 2 + xAdd,
                 y: oldPoint.y * Constants.Line + Constants.Line / 2 + yAdd,
                 ease: 'linear',
-                onComplete: () => this.train.goNext(),
+                onComplete: () => this.train.GoNext(),
             });
         } else {
             const lineDuration = (Constants.Line / 2 - Constants.TurnRadius) / Constants.Speed;
@@ -166,13 +184,13 @@ export class TrainObject {
                         y: oldPoint.y * Constants.Line + Constants.Line / 2 + (Constants.Line / 2) * yEndK,
                     },
                 ],
-                onComplete: () => this.train.goNext(),
+                onComplete: () => this.train.GoNext(),
             });
         }
     }
 
-    private finishTrain(success: boolean, path: IPath): void {
-        const oldPoint = path.GetPosition();
+    private finishTrain(success: boolean, stop: IStop): void {
+        const oldPoint = stop.GetPosition();
 
         const duration = Constants.Line / 2 / Constants.Speed;
         this.gameScene.tweens.add({
